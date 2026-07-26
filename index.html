@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Take The Last Stone</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    padding:
+        clamp(6px,2vw,10px)
+        clamp(15px,4vw,40px)
+        clamp(8px,4vw,10px)
+        clamp(15px,4vw,40px);
+    font-family:Nunito, Aptos, sans-serif;
+    background:linear-gradient(135deg,#edf4fa,#d9e7f2);
+    color:#2d3436;
+}
+
+.container{
+    width:min(900px,95%);
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+    font-family:Nunito, Aptos, sans-serif;
+    font-size:clamp(2rem,5vw,3rem);
+    color:#314e68;
+    margin-top:5px;
+    margin-bottom:15px;
+}
+
+h2{
+    font-family:Nunito, Aptos, sans-serif;
+    color:#36566d;
+    margin-top:0;
+}
+
+.card{
+    background:white;
+    border-radius:18px;
+    padding:
+        clamp(16px,3vw,25px)
+        clamp(16px,3vw,25px)
+        clamp(10px,3vw,25px)
+        clamp(16px,3vw,25px);
+    margin-bottom:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+label{
+    display:block;
+    margin-top:20px;
+    font-weight:600;
+}
+
+.value{
+    color:#666;
+    font-weight:bold;
+}
+
+.player1{
+    color:#22c55e;
+}
+
+.player2{
+    color:#ea580c;
+}
+
+input[type=range]{
+    width:100%;
+    margin-top:8px;
+}
+
+button{
+    background:#4f7cac;
+    color:white;
+    border:none;
+    border-radius:10px;
+    padding:14px 24px;
+    min-height:48px;
+    font-family:Nunito, Aptos, sans-serif;
+    font-size:18px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+button:hover,
+button:focus-visible{
+    background:#355c7d;
+}
+
+#validation{
+    color:#c0392b;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+#gameArea{
+    display:none;
+}
+
+#status{
+    font-size:24px;
+    margin-bottom:20px;
+}
+
+#pile{
+    font-size:28px;
+    text-align:center;
+    margin:25px 0;
+    font-weight:bold;
+}
+
+#stonePile{
+    display:grid;
+    grid-template-columns:
+        repeat(auto-fit,minmax(30px,30px));
+    justify-content:center;
+    gap:6px;
+}
+
+#winner{
+    margin-top:25px;
+    font-size:30px;
+    color:#1b8f3d;
+    text-align:center;
+    font-weight:bold;
+}
+
+#controls{
+    margin-top:25px;
+}
+
+#moveValue{
+    color:#2b6cb0;
+    font-weight:bold;
+}
+
+#newGameButton{
+    display:none;
+    margin-top:30px;
+}
+
+@media (max-width:700px){
+    body{
+        padding:20px 12px;
+    }
+    h1{
+        font-size:2.2rem;
+    }
+    .card{
+        padding:18px;
+    }
+    button{
+        width:100%;
+    }
+}
+
+select{
+    width:100%;
+    margin-top:8px;
+    padding:10px;
+    border-radius:8px;
+    font-size:16px;
+    font-family:inherit;
+}
+
+button.neutral{
+    background:#808080;
+}
+
+button.neutral:hover{
+    background:#666666;
+}
+
+</style>
+
+<link rel="icon"
+href="data:image/svg+xml,
+%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E
+%3Ctext y='.9em' font-size='90'%3E🪨%3C/text%3E
+%3C/svg%3E">
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🪨 Take The Last Stone 🪨</h1>
+
+<div class="card">
+
+<h2>Gameplay</h2>
+
+<p>
+This game involves two players and a pile of stones.
+</p>
+
+<p>
+The players will take turns to remove stones from the pile. The player who removes the last stone from the pile wins the game.
+</p>
+
+<p>
+The players must agree on the maximum number of stones that a player can remove on each turn. So on each turn, a player must remove at least one stone, and may remove at most that maximum number.
+</p>
+
+</div>
+
+<div class="card" id="setup">
+
+<h2>Game Setup</h2>
+
+<label>
+Initial Number of Stones:
+<span class="value" id="stoneValue">20</span>
+</label>
+
+<input
+type="range"
+id="stoneSlider"
+min="3"
+max="100"
+value="20">
+
+<label>
+Maximum Stones Per Turn:
+<span class="value" id="maxValue">3</span>
+</label>
+
+<input
+type="range"
+id="maxSlider"
+min="2"
+max="99"
+value="3">
+
+<label>
+Who goes first?
+</label>
+
+<select id="firstPlayer">
+
+    <option value="1">
+        🟢 Player 1
+    </option>
+
+    <option value="2">
+        🟠 Player 2
+    </option>
+
+</select>
+
+<style>
+
+</style>
+
+<div id="validation"></div>
+
+<br>
+
+<button id="startButton" class="neutral">Start Game</button>
+
+</div>
+
+<div class="card" id="gameArea">
+
+<div id="status"></div>
+
+<div id="pile"></div>
+
+<div id="stonePile"></div>
+
+<div id="controls"></div>
+
+<div id="winner"></div>
+
+<div style="text-align:center;">
+<button id="newGameButton" class="neutral" onclick="resetGame()">
+Start a New Game
+</button>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const stoneSlider = document.getElementById("stoneSlider");
+const maxSlider = document.getElementById("maxSlider");
+
+stoneSlider.style.accentColor = "#888";
+maxSlider.style.accentColor   = "#888";
+
+const stoneValue = document.getElementById("stoneValue");
+const maxValue = document.getElementById("maxValue");
+
+const validation = document.getElementById("validation");
+
+let stones;
+let maxTake;
+let currentPlayer;
+
+function updateSliders(){
+
+    stoneValue.textContent = stoneSlider.value;
+
+    maxSlider.max = stoneSlider.value - 1;
+
+    rebuildTicks(maxSlider);
+
+    if(Number(maxSlider.value) >= Number(stoneSlider.value)){
+        maxSlider.value = stoneSlider.value - 1;
+    }
+
+    maxValue.textContent = maxSlider.value;
+
+    validation.textContent = "";
+
+}
+
+stoneSlider.oninput = updateSliders;
+
+maxSlider.oninput = function(){
+
+    if(Number(maxSlider.value) >= Number(stoneSlider.value)){
+        validation.textContent =
+        "The maximum number of stones per turn must be less than the initial number of stones.";
+    }
+    else{
+        validation.textContent = "";
+    }
+
+    maxValue.textContent = maxSlider.value;
+
+};
+
+function addTicks(slider){
+
+    const list =
+    document.createElement("datalist");
+
+    list.id =
+    slider.id + "Ticks";
+
+    document.body.appendChild(list);
+
+    slider.setAttribute(
+        "list",
+        list.id
+    );
+
+    rebuildTicks(slider);
+
+}
+
+function rebuildTicks(slider){
+
+    const list =
+    document.getElementById(
+        slider.id + "Ticks"
+    );
+
+    list.innerHTML = "";
+
+    for(
+
+        let i =
+        Number(slider.min);
+
+        i<=
+        Number(slider.max);
+
+        i++
+
+    ){
+
+        const option =
+        document.createElement("option");
+
+        option.value=i;
+
+        list.appendChild(option);
+
+    }
+
+}
+
+addTicks(stoneSlider);
+
+addTicks(maxSlider);
+
+updateSliders();
+
+document.getElementById("startButton").onclick = startGame;
+
+function startGame(){
+
+    stones = Number(stoneSlider.value);
+    maxTake = Number(maxSlider.value);
+
+    if(maxTake >= stones){
+        alert("Maximum stones per turn must be less than the initial number of stones.");
+        return;
+    }
+
+    currentPlayer =
+    Number(
+    document.getElementById("firstPlayer").value
+    );
+
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("gameArea").style.display = "block";
+
+    document.getElementById("winner").textContent = "";
+    document.getElementById("newGameButton").style.display = "none";
+
+    updateGame();
+
+}
+
+function updateGame(){
+
+    const colour =
+    (currentPlayer==1)
+    ?
+    "#22c55e"
+    :
+    "#ea580c";
+
+    const icon =
+    (currentPlayer==1)
+    ?
+    "🟢"
+    :
+    "🟠";
+
+    document.getElementById("pile").innerHTML =
+    "<strong>" +
+    stones +
+    "</strong> stone" +
+    (stones==1 ? "" : "s") +
+    " remaining";
+
+    const pileDiv =
+    document.getElementById("stonePile");
+
+    pileDiv.innerHTML = "";
+
+    for(let i=0;i<stones;i++){
+
+        pileDiv.innerHTML +=
+        "<span>🪨</span>";
+
+    }
+
+    const controls = document.getElementById("controls");
+
+    const limit = Math.min(maxTake, stones);
+
+    controls.innerHTML = `
+
+<label>
+Choose how many stones to take:
+<span id="moveValue">1</span>
+</label>
+
+<input
+type="range"
+id="moveSlider"
+min="1"
+max="${limit}"
+value="1">
+
+<br><br>
+
+<div style="text-align:center;">
+<button id="takeButton">
+Take Stones
+</button>
+</div>
+
+`;
+
+    const slider = document.getElementById("moveSlider");
+    slider.style.accentColor =
+    currentPlayer == 1
+        ? "#22c55e"
+        : "#ea580c";
+    addTicks(slider);
+
+    const value = document.getElementById("moveValue");
+
+    value.style.color =
+    (currentPlayer==1)
+    ?
+    "#22c55e"
+    :
+    "#ea580c";
+
+    slider.oninput = function(){
+        value.textContent = slider.value;
+    };
+
+    const takeButton =
+    document.getElementById("takeButton");
+    takeButton.style.background =
+    (currentPlayer==1)
+    ?
+    "#22c55e"
+    :
+    "#ea580c";
+
+    takeButton.onclick = function(){
+
+        takeStones(Number(slider.value));
+
+    };
+
+    const playerClass =
+    (currentPlayer==1)
+    ?
+    "player1"
+    :
+    "player2";
+
+    document.getElementById("status").innerHTML =
+    `<span class="${playerClass}">
+    ${currentPlayer==1 ? "🟢" : "🟠"}
+    <strong>Player ${currentPlayer}</strong>'s turn
+    </span>`;
+}
+
+function takeStones(number){
+
+    stones -= number;
+
+    if(stones === 0){
+
+        document.getElementById("status").innerHTML = "";
+
+        document.getElementById("pile").innerHTML =
+        "No stones remain.";
+
+        document.getElementById("stonePile").innerHTML =
+        "";
+
+        document.getElementById("controls").innerHTML = "";
+
+        const playerClass =
+        (currentPlayer==1)
+        ?
+        "player1"
+        :
+        "player2";
+
+        document.getElementById("winner").innerHTML =
+        `<span class="${playerClass}">
+        🎉 ${currentPlayer==1 ? "🟢" : "🟠"}
+        Player ${currentPlayer} wins!
+        </span>`;
+
+        document.getElementById("newGameButton").style.display =
+        "inline-block";
+
+        return;
+
+    }
+
+    currentPlayer = (currentPlayer===1)?2:1;
+
+    updateGame();
+
+}
+
+function resetGame(){
+
+    document.getElementById("setup").style.display = "block";
+    document.getElementById("gameArea").style.display = "none";
+
+    document.getElementById("newGameButton").style.display = "none";
+
+}
+
+</script>
+
+</body>
+</html>
